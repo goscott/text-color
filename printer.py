@@ -1,5 +1,9 @@
 import sys
 
+TEMPLATE = '\033[{}m'
+DEFAULTS = None
+
+# available styles
 class styles:
     BLACK = '\033[30m'
     RED = '\033[91m'
@@ -26,9 +30,7 @@ class styles:
 
     DONE = '\033[0m'
 
-TEMPLATE = '\033[{}m'
-DEFAULTS = None
-
+# sets defaults from this point on, until a reset
 def set_defaults(sep=None, end=None, file=None, flush=None, reset=None,
         remove_old_styles=None):
     global DEFAULTS
@@ -46,11 +48,13 @@ def set_defaults(sep=None, end=None, file=None, flush=None, reset=None,
     if remove_old_styles != None:
         DEFAULTS['remove_old_styles'] = remove_old_styles
 
+# resets default settings
 def remove_defaults():
     global DEFAULTS
     DEFAULTS = None
 
-# functions the same as the default print function, but with a style parameter
+# functions the same as the default print function, but with a style parameter and
+# some other custom options
 def cprint(style, *args, sep=' ', end='\n', file=sys.stdout, flush=False,
         reset=True, remove_old_styles=True, override_defaults=False):
     # use default setings
@@ -86,24 +90,24 @@ def cprint(style, *args, sep=' ', end='\n', file=sys.stdout, flush=False,
     else:
         print(*args, sep=sep, end=end, file=file, flush=flush)
 
+# test script
 if __name__ == '__main__':
-    cprint(styles.MAGENTA, 'This is ok:', 4, end='', reset=False)
-    cprint(styles.GREEN, 'Green test', 5, 7)
+    cprint(styles.MAGENTA, 'This is a magenta four:', 4, end='', reset=False)
+    cprint(styles.GREEN, ' and this is green', '(this too)\n')
+
     set_defaults(reset=False)
-    cprint(styles.CYAN, 'asdlkfjasdf')
-    print('asdfasdfasdf\n')
-    cprint(styles.YELLOW, 'asdlkfjasdf', reset=True)
-    print('asdfasdfasdf\n')
+    cprint(styles.CYAN, 'something in cyan')
+    print('\tStill Cyan!\n')
+
+    cprint(styles.YELLOW, 'will this reset?', reset=True)
+    print('\tNope! Reset your defaults!\n')
     cprint(styles.UNDERLINE, 'asdlkfjasdf', reset=True, override_defaults=True)
     print('asdfasdfasdf\n')
 
     remove_defaults()
-    cprint([styles.RED, styles.UNDERLINE], 'red underline')
-    print('no style\n')
-    cprint(tuple([styles.GREEN, styles.UNDERLINE]), 'green and underline')
-    cprint(styles.BOLD, 'bold\n')
-    print('|', end='')
-    cprint([styles.UNDERLINE, 43], 'test', end='')
-    print('|')
+    cprint([styles.RED, styles.UNDERLINE], 'red AND underline?!')
+    print('No style any more\n')
 
-    cprint(styles.CYAN_BG, 'cyan background')
+    cprint(styles.CYAN_BG, 'cyan background\n')
+
+    cprint([styles.RED_BG, styles.YELLOW, styles.UNDERLINE], "LOTS OF STYLES!\n")
