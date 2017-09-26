@@ -53,10 +53,43 @@ def remove_defaults():
     global DEFAULTS
     DEFAULTS = None
 
+# prints a usage message
+def help():
+    # basic overview
+    cprint('\nTo print in a certain style:', style=styles.INVERSE)
+    cprint('\tcprint(style, *args)', style=styles.YELLOW)
+    # similarities with "print()"
+    cprint('\t\t-',
+        cprint("args", style=styles.MAGENTA, show=False, end=''),
+        'is handled like a normal call to',
+        cprint("print()", style=styles.MAGENTA, show=False, end=''))
+    cprint('\t\t\t- ',
+        cprint('print', style=styles.CYAN, show=False, end=''),
+        '("this is a number:", 4)', sep='')
+    cprint('\t\t\t- ',
+        cprint('cprint', style=styles.CYAN, show=False, end=''),
+        '("this is a number:", 4)', sep='')
+    cprint('\t\t\t\t- these statements are equivalent')
+    # adding a style
+    cprint('\t\t- you can a style like this:')
+    cprint('\t\t\t- ',
+        cprint('cprint', style=styles.CYAN, show=False, end=''),
+        '("some green text", style=styles.GREEN)', sep='')
+    cprint("\t\t\t\tsome green text", style=styles.GREEN)
+    # adding multiple styles
+    cprint('\t\t- you can multiple styles like this:')
+    cprint('\t\t\t- ',
+        cprint('cprint', style=styles.CYAN, show=False, end=''),
+        '("some text", style=[styles.YELLOW, styles.UNDERLINE])',
+        sep='')
+    cprint("\t\t\t\tsome text",
+        style=[styles.YELLOW, styles.UNDERLINE])
+
 # functions the same as the default print function, but with a style parameter and
 # some other custom options
-def cprint(style, *args, sep=' ', end='\n', file=sys.stdout, flush=False,
-        reset=True, remove_old_styles=True, override_defaults=False):
+def cprint(*args, style='', sep=' ', end='\n', file=sys.stdout, flush=False,
+        reset=True, remove_old_styles=True, override_defaults=False, show=True):
+    ret = ''
     # use default setings
     if not override_defaults and DEFAULTS != None:
         if 'sep' in DEFAULTS:
@@ -76,38 +109,54 @@ def cprint(style, *args, sep=' ', end='\n', file=sys.stdout, flush=False,
 
     # end old styles
     if remove_old_styles:
-        print(styles.DONE, end='', sep=sep, file=file, flush=flush)
+        if show:
+            print(styles.DONE, end='', sep=sep, file=file, flush=flush)
+        ret += styles.DONE
     # start new style(s)
     if type(style) == list or type(style) == tuple:
-        print(''.join([get_style(s) for s in style]),
-            end='', sep=sep, file=file, flush=flush)
+        if show:
+            print(''.join([get_style(s) for s in style]),
+                end='', sep=sep, file=file, flush=flush)
+        ret += ''.join([get_style(s) for s in style])
     else:
-        print(get_style(style), end='')
+        if show:
+            print(get_style(style), end='')
+        ret += get_style(style)
     # print output
     if reset:
-        print(*args, sep=sep, end='', file=file, flush=flush)
-        print(styles.DONE, end=end)
+        if show:
+            print(*args, sep=sep, end='', file=file, flush=flush)
+            print(styles.DONE, end=end)
+        ret += sep.join([str(a) for a in args]) + styles.DONE + end
     else:
-        print(*args, sep=sep, end=end, file=file, flush=flush)
+        if show:
+            print(*args, sep=sep, end=end, file=file, flush=flush)
+        ret += sep.join([str(a) for a in args]) + end
+    return ret
 
 # test script
 if __name__ == '__main__':
-    cprint(styles.MAGENTA, 'This is a magenta four:', 4, end='', reset=False)
-    cprint(styles.GREEN, ' and this is green', '(this too)\n')
+    help()
+    exit()
+    cprint('This is a magenta four:', 4, end='', reset=False, style=styles.MAGENTA)
+    cprint(' and this is green', '(this too)\n', style=styles.GREEN)
 
     set_defaults(reset=False)
-    cprint(styles.CYAN, 'something in cyan')
+    cprint('something in cyan', style=styles.CYAN)
     print('\tStill Cyan!\n')
 
-    cprint(styles.YELLOW, 'will this reset?', reset=True)
+    cprint('will this reset?', reset=True, style=styles.YELLOW)
     print('\tNope! Reset your defaults!\n')
-    cprint(styles.UNDERLINE, 'asdlkfjasdf', reset=True, override_defaults=True)
-    print('asdfasdfasdf\n')
+
+    cprint('underlined text', reset=True, override_defaults=True,
+        style=styles.UNDERLINE)
+    print('Not underlined any more, despite default settings\n')
 
     remove_defaults()
-    cprint([styles.RED, styles.UNDERLINE], 'red AND underline?!')
+    cprint('red AND underline?!', style=[styles.RED, styles.UNDERLINE])
     print('No style any more\n')
 
-    cprint(styles.CYAN_BG, 'cyan background\n')
+    cprint('cyan background\n', style=styles.CYAN_BG)
 
-    cprint([styles.RED_BG, styles.YELLOW, styles.UNDERLINE], "LOTS OF STYLES!\n")
+    cprint("LOTS OF STYLES!\n",
+        style=[styles.RED_BG, styles.YELLOW, styles.UNDERLINE])
