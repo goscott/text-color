@@ -125,6 +125,29 @@ def cprint(*args, style='', sep=' ', end='\n', file=sys.stdout, flush=False,
         ret += sep.join([str(a) for a in args]) + end
     return ret
 
+# returns a string representing a progress bar
+def get_bar(current, total, bar_char='-', length=60, precision=2,
+        show_progress=True, bookends='[]', prog_format='%', title=''):
+    perc = current/total
+    bar = ''
+    if len(title) > 0:
+        bar += title + ' '
+    bar += bookends[0] + '{}' + bookends[1]
+    if show_progress:
+        if prog_format == '/':
+            bar += ' {}/{}'.format(current, total)
+        else:
+            bar += ' {}%'.format(round(perc*100, precision)
+                if precision > 0 else int(perc*100))
+    num_chars = int(perc*length)
+    return bar.format(bar_char*num_chars + ' '*(length - num_chars))
+
+# outputs a progress bar to the screen
+def print_bar(current, total, bar_char='-', length=60, precision=2,
+        show_progress=True, bookends='[]', prog_format='%', title=''):
+    print(get_bar(current, total, bar_char, length, precision,
+        show_progress, bookends, prog_format, title))
+
 # prints a usage message
 def help():
     # basic overview
